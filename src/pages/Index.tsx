@@ -48,16 +48,27 @@ const stats = [
   { value: '100%', label: 'гарантия качества' },
 ];
 
+const navLinks = [
+  { id: 'catalog', label: 'Услуги' },
+  { id: 'about', label: 'О компании' },
+  { id: 'calc', label: 'Калькулятор' },
+  { id: 'contact', label: 'Контакты' },
+];
+
 const Index = () => {
   const [activeCat, setActiveCat] = useState<Cat>('all');
   const [calcId, setCalcId] = useState(1);
   const [volume, setVolume] = useState(100);
   const [sent, setSent] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const filtered = activeCat === 'all' ? products : products.filter((p) => p.cat === activeCat);
   const calcProduct = products.find((p) => p.id === calcId)!;
 
-  const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  const scrollTo = (id: string) => {
+    setMenuOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const handleSelect = (id: number) => {
     setCalcId(id);
@@ -66,22 +77,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+
       {/* HEADER */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container flex items-center justify-between h-[72px]">
+        <div className="container flex items-center justify-between h-[64px] md:h-[72px]">
           <button onClick={() => scrollTo('top')} className="flex flex-col items-start leading-none">
             <span className="font-display text-2xl font-700 tracking-tight">
               <span className="text-primary">П</span>И<span className="text-accent">К</span>
             </span>
             <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">строительные материалы</span>
           </button>
+
           <nav className="hidden md:flex items-center gap-1">
-            {[
-              { id: 'catalog', label: 'Услуги' },
-              { id: 'about', label: 'О компании' },
-              { id: 'calc', label: 'Калькулятор' },
-              { id: 'contact', label: 'Контакты' },
-            ].map((l) => (
+            {navLinks.map((l) => (
               <button
                 key={l.id}
                 onClick={() => scrollTo(l.id)}
@@ -91,24 +99,54 @@ const Index = () => {
               </button>
             ))}
           </nav>
-          <Button onClick={() => scrollTo('contact')} className="font-600">Заявка</Button>
+
+          <div className="flex items-center gap-2">
+            <Button onClick={() => scrollTo('contact')} className="font-600 hidden sm:inline-flex">Заявка</Button>
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="Меню"
+              className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-secondary transition-colors"
+            >
+              <Icon name={menuOpen ? 'X' : 'Menu'} size={24} />
+            </button>
+          </div>
         </div>
+
+        {/* MOBILE MENU */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-border bg-background animate-fade-up">
+            <div className="container py-3 flex flex-col gap-1">
+              {navLinks.map((l) => (
+                <button
+                  key={l.id}
+                  onClick={() => scrollTo(l.id)}
+                  className="text-left px-3 py-3 text-base font-600 rounded-xl hover:text-primary hover:bg-secondary transition-colors"
+                >
+                  {l.label}
+                </button>
+              ))}
+              <Button onClick={() => scrollTo('contact')} className="font-600 mt-2 h-12 w-full">
+                Оставить заявку
+              </Button>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* HERO */}
       <section id="top" className="relative overflow-hidden grid-bg">
-        <div className="container grid lg:grid-cols-2 gap-12 items-center py-16 lg:py-24">
+        <div className="container grid lg:grid-cols-2 gap-10 lg:gap-12 items-center py-12 lg:py-24">
           <div className="animate-fade-up">
-            <span className="inline-flex items-center gap-2 bg-secondary text-primary font-600 text-sm px-4 py-1.5 rounded-full mb-5">
+            <span className="inline-flex items-center gap-2 bg-secondary text-primary font-600 text-xs sm:text-sm px-4 py-1.5 rounded-full mb-5">
               <Icon name="ShieldCheck" size={16} /> Надёжный поставщик
             </span>
-            <h1 className="font-display text-5xl lg:text-7xl font-700 leading-[0.95] mb-5 uppercase">
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl font-700 leading-[1] lg:leading-[0.95] mb-5 uppercase">
               Материалы для дорог <span className="text-primary">от «ПИК»</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-md mb-8">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-md mb-8">
               Геосинтетика, гидроизоляция, химические анкера. Работаем с подрядчиками по всей России.
             </p>
-            <div className="flex flex-wrap gap-3 mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 mb-8">
               <Button size="lg" onClick={() => scrollTo('catalog')} className="font-600 text-base h-12 px-7">
                 Смотреть каталог
               </Button>
@@ -116,7 +154,7 @@ const Index = () => {
                 Рассчитать стоимость
               </Button>
             </div>
-            <ul className="flex flex-wrap gap-x-7 gap-y-2">
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
               {['Скидки от объёма', 'Логистика включена', 'Сертификаты ГОСТ'].map((f) => (
                 <li key={f} className="flex items-center gap-2 font-600 text-sm">
                   <Icon name="Check" size={18} className="text-accent" /> {f}
@@ -137,10 +175,10 @@ const Index = () => {
 
       {/* STATS */}
       <section className="bg-primary text-primary-foreground">
-        <div className="container grid grid-cols-2 md:grid-cols-4 gap-8 py-12 text-center">
+        <div className="container grid grid-cols-2 md:grid-cols-4 gap-6 py-10 md:py-12 text-center">
           {stats.map((s) => (
             <div key={s.label}>
-              <div className="font-display text-4xl lg:text-5xl font-700">{s.value}</div>
+              <div className="font-display text-3xl md:text-4xl lg:text-5xl font-700">{s.value}</div>
               <div className="opacity-80 text-sm mt-1">{s.label}</div>
             </div>
           ))}
@@ -148,19 +186,19 @@ const Index = () => {
       </section>
 
       {/* CATALOG / SERVICES */}
-      <section id="catalog" className="py-20 scroll-mt-20">
+      <section id="catalog" className="py-14 lg:py-20 scroll-mt-16">
         <div className="container">
-          <h2 className="font-display text-4xl lg:text-5xl font-700 text-center uppercase">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-700 text-center uppercase">
             Наши <span className="text-primary">услуги</span>
           </h2>
-          <p className="text-center text-muted-foreground mt-3 mb-10">Материалы для дорожного строительства</p>
+          <p className="text-center text-muted-foreground mt-3 mb-8">Материалы для дорожного строительства</p>
 
-          <div className="flex flex-wrap justify-center gap-2 mb-12">
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setActiveCat(t.id)}
-                className={`px-6 py-2.5 rounded-full font-600 text-sm border-2 transition-all ${
+                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-600 text-sm border-2 transition-all ${
                   activeCat === t.id
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-card border-border hover:border-primary'
@@ -171,18 +209,18 @@ const Index = () => {
             ))}
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
             {filtered.map((p) => (
               <div
                 key={p.id}
-                className="group bg-card rounded-2xl p-7 border border-border hover:border-primary hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/5 transition-all"
+                className="group bg-card rounded-2xl p-5 sm:p-7 border border-border hover:border-primary hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/5 transition-all"
               >
-                <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors text-primary">
-                  <Icon name={p.icon} size={28} />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors text-primary">
+                  <Icon name={p.icon} size={26} />
                 </div>
-                <h3 className="font-display text-xl font-600">{p.name}</h3>
+                <h3 className="font-display text-lg sm:text-xl font-600">{p.name}</h3>
                 <p className="text-sm text-muted-foreground mt-1 mb-4">{p.desc}</p>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   <span className="font-display text-lg font-700 text-primary">
                     от {p.price} ₽<span className="text-sm text-muted-foreground font-400"> / {p.unit}</span>
                   </span>
@@ -197,18 +235,18 @@ const Index = () => {
       </section>
 
       {/* ABOUT */}
-      <section id="about" className="py-20 bg-secondary/40 scroll-mt-20">
-        <div className="container grid lg:grid-cols-2 gap-12 items-center">
+      <section id="about" className="py-14 lg:py-20 bg-secondary/40 scroll-mt-16">
+        <div className="container grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
           <div>
-            <h2 className="font-display text-4xl lg:text-5xl font-700 uppercase mb-5">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-700 uppercase mb-5">
               О компании <span className="text-primary">«ПИК»</span>
             </h2>
-            <p className="text-lg text-muted-foreground mb-6">
+            <p className="text-base sm:text-lg text-muted-foreground mb-6">
               Уже 12 лет мы поставляем строительные материалы для автомобильных дорог. Сотрудничаем
               напрямую с заводами-производителями, поэтому гарантируем честные цены и стабильное
               качество на каждом объекте.
             </p>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
               {[
                 { icon: 'Truck', t: 'Своя логистика', d: 'Доставка в 40+ регионов' },
                 { icon: 'BadgeCheck', t: 'Сертификаты ГОСТ', d: 'На всю продукцию' },
@@ -216,38 +254,38 @@ const Index = () => {
                 { icon: 'Headphones', t: 'Поддержка 24/7', d: 'Менеджер на связи' },
               ].map((f) => (
                 <div key={f.t} className="flex gap-3 bg-card rounded-xl p-4 border border-border">
-                  <div className="text-primary"><Icon name={f.icon} size={24} /></div>
+                  <div className="text-primary shrink-0"><Icon name={f.icon} size={24} /></div>
                   <div>
-                    <div className="font-600">{f.t}</div>
-                    <div className="text-sm text-muted-foreground">{f.d}</div>
+                    <div className="font-600 text-sm sm:text-base">{f.t}</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">{f.d}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="relative">
+          <div className="relative order-first lg:order-last">
             <div className="absolute -inset-3 bg-primary/10 rounded-[2rem] blur-xl" />
-            <img src={HERO_IMG} alt="Объект" className="relative rounded-[2rem] shadow-xl w-full object-cover aspect-square" />
+            <img src={HERO_IMG} alt="Объект" className="relative rounded-[2rem] shadow-xl w-full object-cover aspect-video lg:aspect-square" />
           </div>
         </div>
       </section>
 
       {/* CALCULATOR */}
-      <section id="calc" className="py-20 scroll-mt-20">
+      <section id="calc" className="py-14 lg:py-20 scroll-mt-16">
         <div className="container">
-          <h2 className="font-display text-4xl lg:text-5xl font-700 text-center uppercase">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-700 text-center uppercase">
             Калькулятор <span className="text-primary">стоимости</span>
           </h2>
-          <p className="text-center text-muted-foreground mt-3 mb-10">
+          <p className="text-center text-muted-foreground mt-3 mb-8 sm:mb-10">
             Выберите товар и объём, чтобы получить персональное предложение
           </p>
 
-          <div className="max-w-2xl mx-auto bg-card rounded-2xl p-8 border border-border shadow-lg">
+          <div className="max-w-2xl mx-auto bg-card rounded-2xl p-5 sm:p-8 border border-border shadow-lg">
             <label className="font-600 text-sm block mb-2">Выберите товар</label>
             <select
               value={calcId}
               onChange={(e) => setCalcId(Number(e.target.value))}
-              className="w-full h-12 px-4 rounded-xl border-2 border-border bg-background font-500 focus:border-primary outline-none transition-colors mb-5"
+              className="w-full h-12 px-4 rounded-xl border-2 border-border bg-background font-500 focus:border-primary outline-none transition-colors mb-5 text-sm sm:text-base"
             >
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -265,19 +303,20 @@ const Index = () => {
               className="h-12 rounded-xl border-2 text-base mb-6"
             />
 
-            <div className="bg-secondary/60 rounded-xl p-6 border-l-4 border-primary text-center">
+            <div className="bg-secondary/60 rounded-xl p-4 sm:p-6 border-l-4 border-primary text-center">
               <p className="text-muted-foreground mb-1">
-                <strong className="text-foreground font-display text-lg">{calcProduct.name}</strong>
+                <strong className="text-foreground font-display text-base sm:text-lg">{calcProduct.name}</strong>
               </p>
-              <p className="text-muted-foreground mb-5">
+              <p className="text-muted-foreground text-sm sm:text-base mb-5">
                 Объём: <strong className="text-foreground">{volume}</strong> {calcProduct.unit}
               </p>
               <Button
                 size="lg"
                 onClick={() => scrollTo('contact')}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground font-700 text-base h-12 px-8 animate-pulse-ring"
+                className="w-full sm:w-auto h-auto py-3 px-6 sm:px-8 whitespace-normal bg-accent hover:bg-accent/90 text-accent-foreground font-700 text-sm sm:text-base animate-pulse-ring"
               >
-                <Icon name="Target" size={20} className="mr-2" /> Узнать персональное предложение
+                <Icon name="Target" size={20} className="mr-2 shrink-0" />
+                Узнать персональное предложение
               </Button>
               <p className="text-xs text-muted-foreground mt-3">* Цена зависит от объёма и условий поставки</p>
             </div>
@@ -286,15 +325,15 @@ const Index = () => {
       </section>
 
       {/* CONTACT */}
-      <section id="contact" className="py-20 bg-secondary/40 scroll-mt-20">
+      <section id="contact" className="py-14 lg:py-20 bg-secondary/40 scroll-mt-16">
         <div className="container">
-          <h2 className="font-display text-4xl lg:text-5xl font-700 text-center uppercase">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-700 text-center uppercase">
             Оставить <span className="text-primary">заявку</span>
           </h2>
-          <p className="text-center text-muted-foreground mt-3 mb-10">Мы свяжемся с вами в течение 15 минут</p>
+          <p className="text-center text-muted-foreground mt-3 mb-8 sm:mb-10">Мы свяжемся с вами в течение 15 минут</p>
 
-          <div className="grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="bg-card rounded-2xl p-8 border border-border shadow-lg">
+          <div className="grid lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="bg-card rounded-2xl p-5 sm:p-8 border border-border shadow-lg">
               {sent ? (
                 <div className="h-full flex flex-col items-center justify-center text-center py-10">
                   <div className="w-16 h-16 rounded-full bg-accent/15 text-accent flex items-center justify-center mb-4">
@@ -309,7 +348,7 @@ const Index = () => {
                     e.preventDefault();
                     setSent(true);
                   }}
-                  className="space-y-4"
+                  className="space-y-3 sm:space-y-4"
                 >
                   <Input placeholder="Ваше имя" required className="h-12 rounded-xl border-2" />
                   <Input type="tel" placeholder="Телефон" required className="h-12 rounded-xl border-2" />
@@ -317,7 +356,7 @@ const Index = () => {
                   <Textarea
                     placeholder="Комментарий: какой товар интересует, объём, сроки..."
                     defaultValue={`Запрос цены: ${calcProduct.name}, объём: ${volume} ${calcProduct.unit}`}
-                    className="rounded-xl border-2 min-h-[110px]"
+                    className="rounded-xl border-2 min-h-[100px] sm:min-h-[110px]"
                   />
                   <Button type="submit" size="lg" className="w-full font-700 h-12 text-base">
                     Отправить заявку
@@ -326,20 +365,20 @@ const Index = () => {
               )}
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:gap-4">
               {[
                 { icon: 'Phone', t: '+7 (800) 555-35-35', d: 'Звонок по России бесплатный' },
                 { icon: 'Mail', t: 'info@pik-dorogi.ru', d: 'Ответим в течение часа' },
                 { icon: 'MapPin', t: 'Москва, ул. Строителей, 15', d: 'Офис и склад' },
                 { icon: 'Clock', t: 'Пн–Пт 9:00–19:00', d: 'Заявки принимаем круглосуточно' },
               ].map((c) => (
-                <div key={c.t} className="flex gap-4 bg-card rounded-2xl p-5 border border-border items-center">
-                  <div className="w-12 h-12 rounded-xl bg-secondary text-primary flex items-center justify-center shrink-0">
-                    <Icon name={c.icon} size={24} />
+                <div key={c.t} className="flex gap-4 bg-card rounded-2xl p-4 sm:p-5 border border-border items-center">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-secondary text-primary flex items-center justify-center shrink-0">
+                    <Icon name={c.icon} size={22} />
                   </div>
                   <div>
-                    <div className="font-display text-lg font-600">{c.t}</div>
-                    <div className="text-sm text-muted-foreground">{c.d}</div>
+                    <div className="font-display text-base sm:text-lg font-600">{c.t}</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">{c.d}</div>
                   </div>
                 </div>
               ))}
@@ -349,7 +388,7 @@ const Index = () => {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-primary text-primary-foreground py-10 text-center">
+      <footer className="bg-primary text-primary-foreground py-8 sm:py-10 text-center">
         <div className="container">
           <div className="font-display text-2xl font-700">
             <span className="text-primary-foreground">П</span>И<span className="text-accent">К</span>
